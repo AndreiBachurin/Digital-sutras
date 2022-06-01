@@ -2,11 +2,6 @@ import React from "react";
 import Item from "./Item";
 
 export default function ItemsList(props) {
-
-    // function handleDelClick() {
-    //     setItems([...props.items.filter((i) => i.name !== item.name)]);
-    //   }
-
     return (
     <ul className="ui-list">
         {props.items.map((item, index) => (

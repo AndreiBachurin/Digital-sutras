@@ -1,79 +1,59 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import AddItem from "./AddItem.js";
 import Item from "./Item.js";
+import ItemsList from "./ItemsList.js";
 
 export default function Shop() {
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
-  const [items, setItems] = useState([]);
-  const [fill, setFill] = useState(true);
+  const [items, setItems] = useState(() => {
+    const value = localStorage.getItem("items");
+    if (!value) {
+      return [];
+    } else {
+      return JSON.parse(value);
+    }
+  });
+  const [valid, setValid] = useState(true);
+
+  useEffect(() => {
+    localStorage.setItem("items", JSON.stringify(items));
+    if (items.length === 0) {
+      document.title = "Товары отсутствуют";
+    } else {
+      document.title = `${items.length} товаров`;
+    }
+  }, [items]);
 
   function handleFormSubmit(event) {
     event.preventDefault();
-    console.log(name, desc);
     if (name === "" || desc === "") {
-      setFill(false);
+      setValid(false);
     } else {
-      setFill(true);
+      setValid(true);
       setItems([...items, { id: items.length, name: name, desc: desc }]);
       setName("");
       setDesc("");
     }
   }
 
+  function handleDelClick(event) {
+    setItems([...items.filter((i) => i.name != event.target.name)]);
+  }
+
   return (
     <>
-      <form onSubmit={handleFormSubmit}>
-        <div>
-          <label htmlFor="name">Name: </label>
-          <input
-            onChange={(event) => setName(event.target.value)}
-            value={name}
-            id="name"
-            type="text"
-            placeholder="Название товара"
-            className="ui-textfield"
-          />
-        </div>
-        <div>
-          <label htmlFor="desc">Description: </label>
-          <input
-            onChange={(event) => setDesc(event.target.value)}
-            value={desc}
-            id="desc"
-            type="text"
-            placeholder="Описание товара"
-            className="ui-textfield"
-          />
-        </div>
-        <div className="form-footer">
-          <div className="validation">
-            {fill ? "" : "Заполнены не все поля"}
-          </div>
-          <input type="submit" className="ui-button" value="Добавить" />
-        </div>
-      </form>
-
+      <AddItem onFormSubmit={handleFormSubmit}
+       onNameChange={(event) => setName(event.target.value)} name={name}
+       onDescChange={(event) => setDesc(event.target.value)} desc={desc}
+        valid={valid}
+       />
       <div>
         <p className="ui-title">
           {items.length === 0 ? "Добавьте первый товар" : ""}
         </p>
       </div>
-
-      <ul className="ui-list">
-        {items.map((item, index) => (
-          <li className="ui-item-list" key={index}>
-            <Item info={item} />
-            <button
-              onClick={() =>
-                setItems([...items.filter((i) => i.name !== item.name)])
-              }
-              className="item-button"
-            >
-              Удалить
-            </button>
-          </li>
-        ))}
-      </ul>
+      <ItemsList items={items} onDelClick={handleDelClick}/>
     </>
   );
 }
