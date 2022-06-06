@@ -49,7 +49,7 @@ export default function Shop() {
         valid={valid}
        />
       <div>
-        <p className="ui-title">
+        <p className="m6">
           {items.length === 0 ? "Добавьте первый товар" : ""}
         </p>
       </div>
